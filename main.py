@@ -28,13 +28,13 @@ while True:
     if running:
         if v > -omega * R:
             # Skidding phase
-            F_friction = mu_k * m * g
-            tau_friction = -F_friction * R
+            F_friction = -mu_k * m * g
+            tau_friction = F_friction * R
         else:
             # Rolling phase
             F_friction = 0
             tau_friction = 0
-        a = -F_friction / m
+        a = F_friction * / m
         alpha = tau_friction / I
         v += a * dt
         omega += alpha * dt
