@@ -34,7 +34,7 @@ while True:
             # Rolling phase
             F_friction = 0
             tau_friction = 0
-        a = F_friction * / m
+        a = F_friction / m
         alpha = tau_friction / I
         v += a * dt
         omega += alpha * dt
