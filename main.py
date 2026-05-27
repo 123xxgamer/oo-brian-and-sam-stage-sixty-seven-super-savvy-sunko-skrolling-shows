@@ -12,6 +12,9 @@ g = 9.81 # acceleration due to gravity (m/s^2)
 v = v_init
 omega = 0.0 # initial angular velocity (rad/s)
 
+trans_ke = 0.5 * m * v**2
+rot_ke = 0.5 * I * omega**2
+
 running = False
 t = 0.0
 dt = 0.01
@@ -49,6 +52,16 @@ def set_shape(m_item):
     val = m_item.selected
     # set I_factor based on shape and update I
 
+def set_radius(s):
+    global R, I
+    R = s.value
+    # update I based on new radius, update text
+
+def set_init_vel(s):
+    global v_init, v
+    v_init = s.value
+    # update text
+
 
 #UI elements
 scene.append_to_caption("\nControls:\n")
@@ -67,8 +80,24 @@ slider_fric = slider(min=0.01, max=0.8, value=mu_k, bind=set_fric, length=200)
 text_fric = wtext(text=f"Kinetic Friction: {mu_k:1.2f}")
 scene.append_to_caption("\n\n")
 
+slider_radius = slider(min=0.1, max=5.0, value=R, bind=set_radius, length=200)
+text_radius = wtext(text=f"Radius: {R:1.1f} m")
+scene.append_to_caption("\n\n")
 
+slider_init_vel = slider(min=0.5, max=20.0, value=v_init, bind=set_init_vel, length=200)
+text_init_vel = wtext(text=f"Initial Velocity: {v_init:1.1f} m/s")
+scene.append_to_caption("\n\n")
 
+g_energy = graph(title="Energy vs Time", align="left", xtitle="Time (s)", ytitle="Energy (J)", width=800, height=250)
+total_energy = gcurve(graph=g_energy, color=color.blue, label="Total Energy")
+translational_ke = gcurve(graph=g_energy, color=color.red, label="Translational Kinetic Energy")
+rotational_ke = gcurve(graph=g_energy, color=color.green, label="Rotational Kinetic Energy")
+
+g_lin_momentum = graph(title="Momentum vs Time", align="left", xtitle="Time (s)", ytitle="Momentum (kg*m/s)", width=800, height=250)
+lin_momentum = gcurve(graph=g_lin_momentum, color=color.orange, label="Linear Momentum")
+
+g_ang_momentum = graph(title="Angular Momentum vs Time", align="left", xtitle="Time (s)", ytitle="Angular Momentum (kg*m^2/s)", width=800, height=250)
+ang_momentum = gcurve(graph=g_ang_momentum, color=color.purple, label="Angular Momentum")
 
 
 while True:
@@ -90,4 +119,15 @@ while True:
         d_theta = omega * dt
         object.rotate(angle=d_theta, axis=vector(0, 0, 1), origin=object.pos)
         object.pos.x += v * dt
+
+        trans_ke = 0.5 * m * v**2
+        rot_ke = 0.5 * I * omega**2
+
+        total_energy.plot(t, trans_ke + rot_ke)
+        translational_ke.plot(t, trans_ke)
+        rotational_ke.plot(t, rot_ke)
+
+        lin_momentum.plot(t, m * v)
+        ang_momentum.plot(t, -I * omega)
+
         t += dt
