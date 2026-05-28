@@ -12,15 +12,93 @@ g = 9.81 # acceleration due to gravity (m/s^2)
 v = v_init
 omega = 0.0 # initial angular velocity (rad/s)
 
-running = True
+trans_ke = 0.5 * m * v**2
+rot_ke = 0.5 * I * omega**2
+
+running = False
 t = 0.0
 dt = 0.01
 
 scene = canvas(title="Skidding to Rolling Transition", width=800, height=400, center=vector(5,1,0), background=color.white)
-scene.camera.pos = vector(5, 1, 15)
+scene.camera.pos = vector(0, 1, 8)
 
-ground=box(pos=vector(10,0,0), size=vector(30,0.1,10), color=color.gray(0.5))
-object = cylinder(pos=vector(0, R, 0), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
+ground=box(pos=vector(-8,-5,0), size=vector(100,-10,0.1), color=color.gray(0.5))
+object = cylinder(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
+
+#UI callback funcs
+def toggle_play(b):
+    global running
+    running = not running
+    # update button text
+
+def reset_sim(b):
+    global v, omega, running, t
+    running = False
+    t = 0.0
+    # update button text, reset positions and velocities
+
+def set_mass(s):
+    global m
+    m = s.value
+    #update text
+
+def set_fric(s):
+    global mu_k
+    mu_k = s.value
+    #update text
+
+def set_shape(m_item):
+    global I_factor, I
+    val = m_item.selected
+    # set I_factor based on shape and update I
+
+def set_radius(s):
+    global R, I
+    R = s.value
+    # update I based on new radius, update text
+
+def set_init_vel(s):
+    global v_init, v
+    v_init = s.value
+    # update text
+
+
+#UI elements
+scene.append_to_caption("\nControls:\n")
+button_play = button(text="Play", bind=toggle_play)
+button_reset = button(text="Reset", bind=reset_sim)
+scene.append_to_caption("\n\n")
+
+menu_shape = menu(choices=['Solid Cylinder', 'Hollow Cylinder', 'Solid Sphere', 'Hollow Sphere'], bind=set_shape)
+scene.append_to_caption("\n\n")
+
+slider_mass = slider(min=0.1, max=10.0, value=m, bind=set_mass, length=200)
+text_mass = wtext(text=f"Mass: {m:1.1f} kg")
+scene.append_to_caption("\n\n")
+
+slider_fric = slider(min=0.01, max=0.8, value=mu_k, bind=set_fric, length=200)
+text_fric = wtext(text=f"Kinetic Friction: {mu_k:1.2f}")
+scene.append_to_caption("\n\n")
+
+slider_radius = slider(min=0.1, max=5.0, value=R, bind=set_radius, length=200)
+text_radius = wtext(text=f"Radius: {R:1.1f} m")
+scene.append_to_caption("\n\n")
+
+slider_init_vel = slider(min=0.5, max=20.0, value=v_init, bind=set_init_vel, length=200)
+text_init_vel = wtext(text=f"Initial Velocity: {v_init:1.1f} m/s")
+scene.append_to_caption("\n\n")
+
+g_energy = graph(title="Energy vs Time", align="left", xtitle="Time (s)", ytitle="Energy (J)", width=800, height=250)
+total_energy = gcurve(graph=g_energy, color=color.blue, label="Total Energy")
+translational_ke = gcurve(graph=g_energy, color=color.red, label="Translational Kinetic Energy")
+rotational_ke = gcurve(graph=g_energy, color=color.green, label="Rotational Kinetic Energy")
+
+g_lin_momentum = graph(title="Momentum vs Time", align="left", xtitle="Time (s)", ytitle="Momentum (kg*m/s)", width=800, height=250)
+lin_momentum = gcurve(graph=g_lin_momentum, color=color.orange, label="Linear Momentum")
+
+g_ang_momentum = graph(title="Angular Momentum vs Time", align="left", xtitle="Time (s)", ytitle="Angular Momentum (kg*m^2/s)", width=800, height=250)
+ang_momentum = gcurve(graph=g_ang_momentum, color=color.purple, label="Angular Momentum")
+
 
 while True:
     rate(100)
@@ -41,4 +119,15 @@ while True:
         d_theta = omega * dt
         object.rotate(angle=d_theta, axis=vector(0, 0, 1), origin=object.pos)
         object.pos.x += v * dt
+
+        trans_ke = 0.5 * m * v**2
+        rot_ke = 0.5 * I * omega**2
+
+        total_energy.plot(t, trans_ke + rot_ke)
+        translational_ke.plot(t, trans_ke)
+        rotational_ke.plot(t, rot_ke)
+
+        lin_momentum.plot(t, m * v)
+        ang_momentum.plot(t, -I * omega)
+        scene.camera.pos = vector(object.pos.x, 1, 8)
         t += dt
