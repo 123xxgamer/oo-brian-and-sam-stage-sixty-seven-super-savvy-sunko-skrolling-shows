@@ -1,9 +1,12 @@
 from vpython import *
 
-m = 1.0 # mass (kg)
-R = 1.0 # radius (m)
+m_new = 1.0 # initial mass (kg)
+m = m_new # mass (kg)
+R_new = 1.0 # initial radius (m)
+R = R_new # radius (m)
 v_init = 5.0 # initial velocity (m/s)
-mu_k = 0.05 # coefficient of kinetic friction
+mu_k_new = 0.05 # initial coefficient of kinetic friction
+mu_k = mu_k_new # coefficient of kinetic friction
 I_factor = 0.5 # moment of inertia factor for a solid disk
 I = I_factor * m * R**2 # moment of inertia (kg*m^2)
 
@@ -25,7 +28,7 @@ scene.userspin = False
 scene.userzoom = False
 scene.userpan = False
 
-ground=box(pos=vector(10,0,0), size=vector(30,0.1,10), color=color.gray(0.5))
+ground=box(pos=vector(10,0,0), size=vector(30,0.1,10), color=color.gray(0.5), texture=textures.stucco)
 object = cylinder(pos=vector(0, R, 0), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
 
 #UI callback funcs
@@ -41,10 +44,14 @@ def reset_sim(b):
     global v, omega, running, t
     running = False
     v = v_init
+    R=R_new
+    m = m_new
+    mu_k = mu_k_new
     omega = 0.0
+    object = cylinder(pos=vector(0, R, 0), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
     object.pos = vector(0, R, 0)
     object.axis = vector(0, 0, 0.5)
-    b.text = "Play"
+    button_play.text = "Play"
     I = I_factor * m * R**2
     trans_ke = 0.5 * m * v**2
     rot_ke = 0.5 * I * omega**2
@@ -52,14 +59,14 @@ def reset_sim(b):
     
 
 def set_mass(s):
-    global m
-    m = s.value
-    s.text = f"Mass: {m:1.1f} kg"
+    global m_new
+    m_new = s.value
+    text_mass.text = f"Mass: {m_new:1.1f} kg"
 
 def set_fric(s):
-    global mu_k
-    mu_k = s.value
-    s.text = f"Kinetic Friction: {mu_k:1.2f}"
+    global mu_k_new
+    mu_k_new = s.value
+    text_fric.text = f"Kinetic Friction: {mu_k_new:1.2f}"
 
 def set_shape(m_item):
     global I_factor, I
@@ -74,15 +81,14 @@ def set_shape(m_item):
         I_factor = 0.67
 
 def set_radius(s):
-    global R, I
-    R = s.value
-    I = I_factor * m * R**2
-    s.text = f"Radius: {R:1.1f} m"
+    global R_new
+    R_new = s.value
+    text_radius.text = f"Radius: {R_new:1.1f} m"
 
 def set_init_vel(s):
     global v_init, v
     v_init = s.value
-    s.text = f"Initial Velocity: {v_init:1.1f} m/s"
+    text_init_vel.text = f"Initial Velocity: {v_init:1.1f} m/s"
 
 
 #UI elements
@@ -94,12 +100,12 @@ scene.append_to_caption("\n\n")
 menu_shape = menu(choices=['Solid Cylinder', 'Hollow Cylinder', 'Solid Sphere', 'Hollow Sphere'], bind=set_shape)
 scene.append_to_caption("\n\n")
 
-slider_mass = slider(min=0.1, max=10.0, value=m, bind=set_mass, length=200)
-text_mass = wtext(text=f"Mass: {m:1.1f} kg")
+slider_mass = slider(min=0.1, max=10.0, value=m_new, bind=set_mass, length=200)
+text_mass = wtext(text=f"Mass: {m_new:1.1f} kg")
 scene.append_to_caption("\n\n")
 
-slider_fric = slider(min=0.01, max=0.8, value=mu_k, bind=set_fric, length=200)
-text_fric = wtext(text=f"Kinetic Friction: {mu_k:1.2f}")
+slider_fric = slider(min=0.01, max=0.8, value=mu_k_new, bind=set_fric, length=200)
+text_fric = wtext(text=f"Kinetic Friction: {mu_k_new:1.2f}")
 scene.append_to_caption("\n\n")
 
 slider_radius = slider(min=0.1, max=5.0, value=R, bind=set_radius, length=200)
