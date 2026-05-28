@@ -52,14 +52,12 @@ def reset_sim(b):
     scene.delete()
     scene = canvas(title="Skidding to Rolling Transition", width=800, height=400, center=vector(5,1,0), background=color.white)
     ground=box(pos=vector(10,0,0), size=vector(30,0.1,10), color=color.gray(0.5), texture=textures.stucco)
-    object.visible = False
-    del object
     total_energy.clear()
     translational_ke.clear()
     rotational_ke.clear()
     lin_momentum.clear()
     ang_momentum.clear()
-    object = cylinder(pos=vector(0, R, 0), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
+    object.radius = R
     object.pos = vector(0, R, 0)
     object.axis = vector(0, 0, 0.5)
     button_play.text = "Play"
