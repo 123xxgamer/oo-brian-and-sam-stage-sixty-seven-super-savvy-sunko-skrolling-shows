@@ -41,13 +41,24 @@ def toggle_play(b):
         b.text = "Play"
 
 def reset_sim(b):
-    global v, omega, running, t
+    global v, omega, running, t, R, m, mu_k, object, total_energy, translational_ke, rotational_ke, lin_momentum, ang_momentum, I, R_new, m_new, mu_k_new, v_init, I_factor, scene
     running = False
+    t = 0.0
     v = v_init
     R=R_new
     m = m_new
     mu_k = mu_k_new
     omega = 0.0
+    scene.delete()
+    scene = canvas(title="Skidding to Rolling Transition", width=800, height=400, center=vector(5,1,0), background=color.white)
+    ground=box(pos=vector(10,0,0), size=vector(30,0.1,10), color=color.gray(0.5), texture=textures.stucco)
+    object.visible = False
+    del object
+    total_energy.clear()
+    translational_ke.clear()
+    rotational_ke.clear()
+    lin_momentum.clear()
+    ang_momentum.clear()
     object = cylinder(pos=vector(0, R, 0), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
     object.pos = vector(0, R, 0)
     object.axis = vector(0, 0, 0.5)
@@ -55,7 +66,6 @@ def reset_sim(b):
     I = I_factor * m * R**2
     trans_ke = 0.5 * m * v**2
     rot_ke = 0.5 * I * omega**2
-    t = 0.0
     
 
 def set_mass(s):
@@ -94,7 +104,7 @@ def set_init_vel(s):
 #UI elements
 scene.append_to_caption("\nControls:\n")
 button_play = button(text="Play", bind=toggle_play)
-button_reset = button(text="Reset", bind=reset_sim)
+button_reset = button(text="Reset with new parameters", bind=reset_sim)
 scene.append_to_caption("\n\n")
 
 menu_shape = menu(choices=['Solid Cylinder', 'Hollow Cylinder', 'Solid Sphere', 'Hollow Sphere'], bind=set_shape)
