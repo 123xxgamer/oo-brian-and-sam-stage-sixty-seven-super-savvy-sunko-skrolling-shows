@@ -20,10 +20,10 @@ t = 0.0
 dt = 0.01
 
 scene = canvas(title="Skidding to Rolling Transition", width=800, height=400, center=vector(5,1,0), background=color.white)
-scene.camera.pos = vector(5, 1, 15)
+scene.camera.pos = vector(0, 1, 8)
 
-ground=box(pos=vector(10,0,0), size=vector(30,0.1,10), color=color.gray(0.5))
-object = cylinder(pos=vector(0, R, 0), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
+ground=box(pos=vector(-8,-5,0), size=vector(100,-10,0.1), color=color.gray(0.5))
+object = cylinder(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
 
 #UI callback funcs
 def toggle_play(b):
@@ -129,5 +129,5 @@ while True:
 
         lin_momentum.plot(t, m * v)
         ang_momentum.plot(t, -I * omega)
-
+        scene.camera.pos = vector(object.pos.x, 1, 8)
         t += dt
