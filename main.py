@@ -21,6 +21,9 @@ dt = 0.01
 
 scene = canvas(title="Skidding to Rolling Transition", width=800, height=400, center=vector(5,1,0), background=color.white)
 scene.camera.pos = vector(5, 1, 15)
+scene.userspin = False
+scene.userzoom = False
+scene.userpan = False
 
 ground=box(pos=vector(10,0,0), size=vector(30,0.1,10), color=color.gray(0.5))
 object = cylinder(pos=vector(0, R, 0), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
@@ -29,38 +32,57 @@ object = cylinder(pos=vector(0, R, 0), axis=vector(0, 0, 0.5), radius=R, texture
 def toggle_play(b):
     global running
     running = not running
-    # update button text
+    if running:
+        b.text = "Pause"
+    else:
+        b.text = "Play"
 
 def reset_sim(b):
     global v, omega, running, t
     running = False
+    v = v_init
+    omega = 0.0
+    object.pos = vector(0, R, 0)
+    object.axis = vector(0, 0, 0.5)
+    b.text = "Play"
+    I = I_factor * m * R**2
+    trans_ke = 0.5 * m * v**2
+    rot_ke = 0.5 * I * omega**2
     t = 0.0
-    # update button text, reset positions and velocities
+    
 
 def set_mass(s):
     global m
     m = s.value
-    #update text
+    s.text = f"Mass: {m:1.1f} kg"
 
 def set_fric(s):
     global mu_k
     mu_k = s.value
-    #update text
+    s.text = f"Kinetic Friction: {mu_k:1.2f}"
 
 def set_shape(m_item):
     global I_factor, I
     val = m_item.selected
-    # set I_factor based on shape and update I
+    if val == 'Solid Cylinder':
+        I_factor = 0.5
+    elif val == 'Hollow Cylinder':
+        I_factor = 1.0
+    elif val == 'Solid Sphere':
+        I_factor = 0.4
+    elif val == 'Hollow Sphere':
+        I_factor = 0.67
 
 def set_radius(s):
     global R, I
     R = s.value
-    # update I based on new radius, update text
+    I = I_factor * m * R**2
+    s.text = f"Radius: {R:1.1f} m"
 
 def set_init_vel(s):
     global v_init, v
     v_init = s.value
-    # update text
+    s.text = f"Initial Velocity: {v_init:1.1f} m/s"
 
 
 #UI elements
