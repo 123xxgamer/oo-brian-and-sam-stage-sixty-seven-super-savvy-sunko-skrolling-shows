@@ -49,9 +49,7 @@ def reset_sim(b):
     m = m_new
     mu_k = mu_k_new
     omega = 0.0
-    scene.delete()
-    scene = canvas(title="Skidding to Rolling Transition", width=800, height=400, center=vector(5,1,0), background=color.white)
-    ground=box(pos=vector(10,0,0), size=vector(30,0.1,10), color=color.gray(0.5), texture=textures.stucco)
+    scene.camera.pos = vector(5, 1, 15)
     total_energy.delete()
     translational_ke.delete()
     rotational_ke.delete()
