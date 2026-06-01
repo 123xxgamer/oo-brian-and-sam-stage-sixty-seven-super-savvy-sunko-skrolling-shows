@@ -1,9 +1,12 @@
 from vpython import *
 
-m = 1.0 # mass (kg)
-R = 1.0 # radius (m)
+m_new = 1.0 # initial mass (kg)
+m = m_new # mass (kg)
+R_new = 1.0 # initial radius (m)
+R = R_new # radius (m)
 v_init = 5.0 # initial velocity (m/s)
-mu_k = 0.05 # coefficient of kinetic friction
+mu_k_new = 0.05 # initial coefficient of kinetic friction
+mu_k = mu_k_new # coefficient of kinetic friction
 I_factor = 0.5 # moment of inertia factor for a solid disk
 I = I_factor * m * R**2 # moment of inertia (kg*m^2)
 
@@ -11,6 +14,7 @@ g = 9.81 # acceleration due to gravity (m/s^2)
 
 v = v_init
 omega = 0.0 # initial angular velocity (rad/s)
+theta = 0.0 
 
 trans_ke = 0.5 * m * v**2
 rot_ke = 0.5 * I * omega**2
@@ -19,65 +23,99 @@ running = False
 t = 0.0
 dt = 0.01
 
-scene = canvas(title="Skidding to Rolling Transition", width=800, height=400, center=vector(5,1,0), background=color.white)
+scene = canvas(title="Skidding to Rolling Transition", width=800, height=400, center=vector(5,1,0), background=color.white, align='left')
 scene.camera.pos = vector(0, 1, 8)
+scene.userspin = False
+scene.userzoom = False
+scene.userpan = False
 
-ground=box(pos=vector(-8,-5,0), size=vector(100,-10,0.1), color=color.gray(0.5))
+ground=box(pos=vector(-8,-5,-0.1), size=vector(100,-10,0.1), color=color.gray(0.5), texture=textures.stucco)
 object = cylinder(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
+marker = sphere(pos=object.pos + vector(0, -R, 0.5), radius=0.1, color=color.red)
+
+marker_offset = marker.pos - object.pos
 
 #UI callback funcs
 def toggle_play(b):
     global running
     running = not running
-    # update button text
+    if running:
+        b.text = "Pause"
+    else:
+        b.text = "Play"
 
 def reset_sim(b):
-    global v, omega, running, t
+    global v, omega, running, t, R, m, mu_k, object, total_energy, translational_ke, rotational_ke, lin_momentum, ang_momentum, I, R_new, m_new, mu_k_new, v_init, I_factor, scene
     running = False
     t = 0.0
-    # update button text, reset positions and velocities
+    v = v_init
+    R=R_new
+    m = m_new
+    mu_k = mu_k_new
+    omega = 0.0
+    scene.camera.pos = vector(5, 1, 15)
+    total_energy.delete()
+    translational_ke.delete()
+    rotational_ke.delete()
+    lin_momentum.delete()
+    ang_momentum.delete()
+    object.radius = R
+    object.pos = vector(0, R, 0)
+    object.axis = vector(0, 0, 0.5)
+    button_play.text = "Play"
+    I = I_factor * m * R**2
+    trans_ke = 0.5 * m * v**2
+    rot_ke = 0.5 * I * omega**2
+    
 
 def set_mass(s):
-    global m
-    m = s.value
-    #update text
+    global m_new
+    m_new = s.value
+    text_mass.text = f"Mass: {m_new:1.1f} kg"
 
 def set_fric(s):
-    global mu_k
-    mu_k = s.value
-    #update text
+    global mu_k_new
+    mu_k_new = s.value
+    text_fric.text = f"Kinetic Friction: {mu_k_new:1.2f}"
 
 def set_shape(m_item):
     global I_factor, I
     val = m_item.selected
-    # set I_factor based on shape and update I
+    if val == 'Solid Cylinder':
+        I_factor = 0.5
+    elif val == 'Hollow Cylinder':
+        I_factor = 1.0
+    elif val == 'Solid Sphere':
+        I_factor = 0.4
+    elif val == 'Hollow Sphere':
+        I_factor = 0.67
 
 def set_radius(s):
-    global R, I
-    R = s.value
-    # update I based on new radius, update text
+    global R_new
+    R_new = s.value
+    text_radius.text = f"Radius: {R_new:1.1f} m"
 
 def set_init_vel(s):
     global v_init, v
     v_init = s.value
-    # update text
+    text_init_vel.text = f"Initial Velocity: {v_init:1.1f} m/s"
 
 
 #UI elements
 scene.append_to_caption("\nControls:\n")
 button_play = button(text="Play", bind=toggle_play)
-button_reset = button(text="Reset", bind=reset_sim)
+button_reset = button(text="Reset with new parameters", bind=reset_sim)
 scene.append_to_caption("\n\n")
 
 menu_shape = menu(choices=['Solid Cylinder', 'Hollow Cylinder', 'Solid Sphere', 'Hollow Sphere'], bind=set_shape)
 scene.append_to_caption("\n\n")
 
-slider_mass = slider(min=0.1, max=10.0, value=m, bind=set_mass, length=200)
-text_mass = wtext(text=f"Mass: {m:1.1f} kg")
+slider_mass = slider(min=0.1, max=10.0, value=m_new, bind=set_mass, length=200)
+text_mass = wtext(text=f"Mass: {m_new:1.1f} kg")
 scene.append_to_caption("\n\n")
 
-slider_fric = slider(min=0.01, max=0.8, value=mu_k, bind=set_fric, length=200)
-text_fric = wtext(text=f"Kinetic Friction: {mu_k:1.2f}")
+slider_fric = slider(min=0.01, max=0.8, value=mu_k_new, bind=set_fric, length=200)
+text_fric = wtext(text=f"Kinetic Friction: {mu_k_new:1.2f}")
 scene.append_to_caption("\n\n")
 
 slider_radius = slider(min=0.1, max=5.0, value=R, bind=set_radius, length=200)
@@ -117,8 +155,10 @@ while True:
         v += a * dt
         omega += alpha * dt
         d_theta = omega * dt
+        theta += d_theta
         object.rotate(angle=d_theta, axis=vector(0, 0, 1), origin=object.pos)
         object.pos.x += v * dt
+        marker.pos = object.pos + marker_offset.rotate(angle=theta, axis=object.axis)
 
         trans_ke = 0.5 * m * v**2
         rot_ke = 0.5 * I * omega**2
