@@ -28,7 +28,15 @@ scene.userspin = False
 scene.userzoom = False
 scene.userpan = False
 
-ground=box(pos=vector(-8,-5,0), size=vector(100,-10,0.1), color=color.gray(0.5), texture=textures.stucco)
+length = 105
+segment_size = 3 # Matches the texture's aspect ratio
+total_segments = int(length / segment_size)
+
+# Create multiple non-stretched boxes next to each other
+for i in range(total_segments):
+    box(pos=vector(i * segment_size - 15 + (segment_size/2), -segment_size/2, 0),
+        size=vector(segment_size, segment_size, segment_size),
+        texture=textures.rug)
 object = cylinder(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
 
 #UI callback funcs
