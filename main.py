@@ -7,6 +7,7 @@ R = R_new # radius (m)
 v_init = 5.0 # initial velocity (m/s)
 mu_k_new = 0.05 # initial coefficient of kinetic friction
 mu_k = mu_k_new # coefficient of kinetic friction
+new_I_factor = 0.5 # initial moment of inertia factor for a solid disk
 I_factor = 0.5 # moment of inertia factor for a solid disk
 I = I_factor * m * R**2 # moment of inertia (kg*m^2)
 
@@ -59,12 +60,23 @@ def reset_sim(b):
     m = m_new
     mu_k = mu_k_new
     omega = 0.0
+    I_factor = new_I_factor
     scene.camera.pos = vector(5, 1, 15)
     total_energy.delete()
     translational_ke.delete()
     rotational_ke.delete()
     lin_momentum.delete()
     ang_momentum.delete()
+    object.visible = False
+    object.delete()
+    if menu_shape.selected == 'Solid Cylinder':
+        object = cylinder(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
+    elif menu_shape.selected == 'Hollow Cylinder':
+        object = ring(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, thickness=R*0.2, texture=textures.wood)
+    elif menu_shape.selected == 'Solid Sphere':
+        object = sphere(pos=vector(0, R, -0.5), radius=R, texture=textures.earth)
+    elif menu_shape.selected == 'Hollow Sphere':
+        object = sphere(pos=vector(0, R, -0.5), radius=R, texture=textures.stucco, shininess=0.1)
     object.radius = R
     object.pos = vector(0, R, 0)
     object.axis = vector(0, 0, 0.5)
@@ -88,14 +100,13 @@ def set_shape(m_item):
     global I_factor, I
     val = m_item.selected
     if val == 'Solid Cylinder':
-        I_factor = 0.5
+        new_I_factor = 0.5
     elif val == 'Hollow Cylinder':
-        I_factor = 1.0
+        new_I_factor = 1.0
     elif val == 'Solid Sphere':
-        I_factor = 0.4
+        new_I_factor = 0.4
     elif val == 'Hollow Sphere':
-        I_factor = 0.67
-
+        new_I_factor = 0.67
 def set_radius(s):
     global R_new
     R_new = s.value
