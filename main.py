@@ -10,6 +10,8 @@ mu_k = mu_k_new # coefficient of kinetic friction
 I_factor = 0.5 # moment of inertia factor for a solid disk
 I = I_factor * m * R**2 # moment of inertia (kg*m^2)
 
+t_roll = 9999
+
 g = 9.81 # acceleration due to gravity (m/s^2)
 
 v = v_init
@@ -142,6 +144,8 @@ g_ang_momentum = graph(title="Angular Momentum vs Time", align="left", xtitle="T
 ang_momentum = gcurve(graph=g_ang_momentum, color=color.purple, label="Angular Momentum")
 
 
+alert_label = label(pos=vector(0, 5, 0), text="Simulation paused 1s after rolling began.", visible=False, box=True)
+
 while True:
     rate(100)
     
@@ -152,8 +156,17 @@ while True:
             tau_friction = F_friction * R
         else:
             # Rolling phase
+            if t_roll == 9999:
+                t_roll = t
             F_friction = 0
             tau_friction = 0
+        if t >= t_roll + 1 and t < t_roll + 1 + dt:
+            running=False
+            button_play.text="Play"
+            alert_label.pos = vector(object.pos.x, 5, 0)
+            alert_label.visible=True
+        else:
+            alert_label.visible=False
         a = F_friction / m
         alpha = tau_friction / I
         v += a * dt
