@@ -14,6 +14,7 @@ g = 9.81 # acceleration due to gravity (m/s^2)
 
 v = v_init
 omega = 0.0 # initial angular velocity (rad/s)
+theta = 0.0 
 
 trans_ke = 0.5 * m * v**2
 rot_ke = 0.5 * I * omega**2
@@ -22,14 +23,17 @@ running = False
 t = 0.0
 dt = 0.01
 
-scene = canvas(title="Skidding to Rolling Transition", width=800, height=400, center=vector(5,1,0), background=color.white)
+scene = canvas(title="Skidding to Rolling Transition", width=800, height=400, center=vector(5,1,0), background=color.white, align='left')
 scene.camera.pos = vector(0, 1, 8)
 scene.userspin = False
 scene.userzoom = False
 scene.userpan = False
 
-ground=box(pos=vector(-8,-5,0), size=vector(100,-10,0.1), color=color.gray(0.5), texture=textures.stucco)
+ground=box(pos=vector(-8,-5,-0.1), size=vector(100,-10,0.1), color=color.gray(0.5), texture=textures.stucco)
 object = cylinder(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
+marker = sphere(pos=object.pos + vector(0, -R, 0.5), radius=0.1, color=color.red)
+
+marker_offset = marker.pos - object.pos
 
 #UI callback funcs
 def toggle_play(b):
@@ -151,8 +155,10 @@ while True:
         v += a * dt
         omega += alpha * dt
         d_theta = omega * dt
+        theta += d_theta
         object.rotate(angle=d_theta, axis=vector(0, 0, 1), origin=object.pos)
         object.pos.x += v * dt
+        marker.pos = object.pos + marker_offset.rotate(angle=theta, axis=object.axis)
 
         trans_ke = 0.5 * m * v**2
         rot_ke = 0.5 * I * omega**2
