@@ -41,6 +41,7 @@ for i in range(total_segments):
     box(pos=vector(i * segment_size - 15 + (segment_size/2), -segment_size/2, 0),
         size=vector(segment_size, segment_size, segment_size),
         texture=textures.rug)
+    
 object = cylinder(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
 marker = sphere(pos=object.pos + vector(0, -R, 0.5), radius=0.1, color=color.red)
 
@@ -56,8 +57,9 @@ def toggle_play(b):
         b.text = "Play"
 
 def reset_sim(b):
-    global v, omega, running, t, R, m, mu_k, object, total_energy, translational_ke, rotational_ke, lin_momentum, ang_momentum, I, R_new, m_new, mu_k_new, v_init, I_factor, scene
+    global v, omega, running, t, R, m, mu_k, object, total_energy, translational_ke, rotational_ke, lin_momentum, ang_momentum, I, R_new, m_new, mu_k_new, v_init, I_factor, scene, marker, marker_offset
     running = False
+    button_play.text = "Play"
     t = 0.0
     v = v_init
     R=R_new
@@ -71,9 +73,16 @@ def reset_sim(b):
     rotational_ke.delete()
     lin_momentum.delete()
     ang_momentum.delete()
+    total_energy = gcurve(graph=g_energy, color=color.blue, label="Total Energy")
+    translational_ke = gcurve(graph=g_energy, color=color.red, label="Translational Kinetic Energy")
+    rotational_ke = gcurve(graph=g_energy, color=color.green, label="Rotational Kinetic Energy")
+    lin_momentum = gcurve(graph=g_lin_momentum, color=color.orange, label="Linear Momentum")
+    ang_momentum = gcurve(graph=g_ang_momentum, color=color.purple, label="Angular Momentum")
+    
     object.visible = False
     object.delete()
     if menu_shape.selected == 'Solid Cylinder':
+        print("Creating solid cylinder")
         object = cylinder(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
     elif menu_shape.selected == 'Hollow Cylinder':
         object = ring(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, thickness=R*0.2, texture=textures.wood)
@@ -83,7 +92,10 @@ def reset_sim(b):
         object = sphere(pos=vector(0, R, -0.5), radius=R, texture=textures.stucco, shininess=0.1)
     object.radius = R
     object.pos = vector(0, R, 0)
+    marker.pos = object.pos + marker_offset
+    marker_offset = marker.pos - object.pos
     object.axis = vector(0, 0, 0.5)
+
     button_play.text = "Play"
     I = I_factor * m * R**2
     trans_ke = 0.5 * m * v**2
