@@ -52,6 +52,7 @@ def toggle_play(b):
     global running
     running = not running
     if running:
+        marker.make_trail = True
         b.text = "Pause"
     else:
         b.text = "Play"
@@ -69,6 +70,7 @@ def reset_sim(b):
     mu_k = mu_k_new
     omega = 0.0
     theta = 0.0
+    marker.make_trail = False
     I_factor = new_I_factor
     scene.camera.pos = vector(5, 1, 15)
     total_energy.data = []
@@ -93,7 +95,9 @@ def reset_sim(b):
     object.radius = R
     object.pos = vector(0, R, 0)
     marker.pos = object.pos + vector(0, -R, 0.5)
+    #marker.make_trail = True
     marker.color = color.red
+    marker.trail_color = color.red
     marker_offset = marker.pos - object.pos
     object.axis = vector(0, 0, 0.5)
     button_play.text = "Play"
