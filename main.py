@@ -57,7 +57,7 @@ def toggle_play(b):
         b.text = "Play"
 
 def reset_sim(b):
-    global v, omega, running, t, R, m, mu_k, object, total_energy, translational_ke, rotational_ke, lin_momentum, ang_momentum, I, R_new, m_new, mu_k_new, v_init, I_factor, scene, marker, marker_offset, new_I_factor, t_roll, trans_ke, rot_ke
+    global v, omega, running, t, R, m, mu_k, object, total_energy, translational_ke, rotational_ke, lin_momentum, ang_momentum, I, R_new, m_new, mu_k_new, v_init, I_factor, scene, marker, marker_offset, new_I_factor, t_roll, trans_ke, rot_ke, theta
     running = False
     button_play.text = "Play"
     alert_label.visible = False
@@ -68,6 +68,7 @@ def reset_sim(b):
     m = m_new
     mu_k = mu_k_new
     omega = 0.0
+    theta = 0.0
     I_factor = new_I_factor
     scene.camera.pos = vector(5, 1, 15)
     total_energy.data = []
@@ -91,7 +92,7 @@ def reset_sim(b):
     object.visible = True
     object.radius = R
     object.pos = vector(0, R, 0)
-    marker.pos = object.pos + marker_offset
+    marker.pos = object.pos + vector(0, -R, 0.5)
     marker_offset = marker.pos - object.pos
     object.axis = vector(0, 0, 0.5)
 
