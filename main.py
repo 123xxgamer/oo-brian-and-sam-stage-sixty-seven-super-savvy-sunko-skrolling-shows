@@ -60,7 +60,9 @@ def reset_sim(b):
     global v, omega, running, t, R, m, mu_k, object, total_energy, translational_ke, rotational_ke, lin_momentum, ang_momentum, I, R_new, m_new, mu_k_new, v_init, I_factor, scene, marker, marker_offset
     running = False
     button_play.text = "Play"
+    alert_label.visible = False
     t = 0.0
+    t_roll = 9999
     v = v_init
     R=R_new
     m = m_new
@@ -68,16 +70,11 @@ def reset_sim(b):
     omega = 0.0
     I_factor = new_I_factor
     scene.camera.pos = vector(5, 1, 15)
-    total_energy.delete()
-    translational_ke.delete()
-    rotational_ke.delete()
-    lin_momentum.delete()
-    ang_momentum.delete()
-    total_energy = gcurve(graph=g_energy, color=color.blue, label="Total Energy")
-    translational_ke = gcurve(graph=g_energy, color=color.red, label="Translational Kinetic Energy")
-    rotational_ke = gcurve(graph=g_energy, color=color.green, label="Rotational Kinetic Energy")
-    lin_momentum = gcurve(graph=g_lin_momentum, color=color.orange, label="Linear Momentum")
-    ang_momentum = gcurve(graph=g_ang_momentum, color=color.purple, label="Angular Momentum")
+    total_energy.data = []
+    translational_ke.data = []
+    rotational_ke.data = []
+    lin_momentum.data = []
+    ang_momentum.data = []
     
     object.visible = False
     object.delete()
