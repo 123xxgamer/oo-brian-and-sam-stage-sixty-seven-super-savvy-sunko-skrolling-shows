@@ -82,7 +82,6 @@ def reset_sim(b):
     object.visible = False
     object.delete()
     if menu_shape.selected == 'Solid Cylinder':
-        print("Creating solid cylinder")
         object = cylinder(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
     elif menu_shape.selected == 'Hollow Cylinder':
         object = ring(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, thickness=R*0.2, texture=textures.wood)
@@ -90,6 +89,9 @@ def reset_sim(b):
         object = sphere(pos=vector(0, R, -0.5), radius=R, texture=textures.earth)
     elif menu_shape.selected == 'Hollow Sphere':
         object = sphere(pos=vector(0, R, -0.5), radius=R, texture=textures.stucco, shininess=0.1)
+    else:
+        object = cylinder(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
+    object.visible = True
     object.radius = R
     object.pos = vector(0, R, 0)
     marker.pos = object.pos + marker_offset
