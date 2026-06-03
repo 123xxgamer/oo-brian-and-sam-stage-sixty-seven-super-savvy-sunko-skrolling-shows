@@ -7,8 +7,11 @@ R = R_new # radius (m)
 v_init = 5.0 # initial velocity (m/s)
 mu_k_new = 0.05 # initial coefficient of kinetic friction
 mu_k = mu_k_new # coefficient of kinetic friction
+new_I_factor = 0.5 # initial moment of inertia factor for a solid disk
 I_factor = 0.5 # moment of inertia factor for a solid disk
 I = I_factor * m * R**2 # moment of inertia (kg*m^2)
+
+t_roll = 9999
 
 g = 9.81 # acceleration due to gravity (m/s^2)
 
@@ -29,9 +32,17 @@ scene.userspin = False
 scene.userzoom = False
 scene.userpan = False
 
-ground=box(pos=vector(-8,-5,-0.1), size=vector(100,-10,0.1), color=color.gray(0.5), texture=textures.stucco)
+length = 105
+segment_size = 3 # Matches the texture's aspect ratio
+total_segments = int(length / segment_size)
+
+# Create multiple non-stretched boxes next to each other
+for i in range(total_segments):
+    box(pos=vector(i * segment_size - 15 + (segment_size/2), -segment_size/2, 0),
+        size=vector(segment_size, segment_size, segment_size),
+        texture=textures.rug)
 object = cylinder(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
-marker = sphere(pos=object.pos + vector(0, -R, 0.5), radius=0.1, color=color.red)
+marker = sphere(pos=object.pos + vector(0, -R, 0.5), radius=0.1, color=color.red, make_trail = True)
 
 marker_offset = marker.pos - object.pos
 
@@ -53,15 +64,28 @@ def reset_sim(b):
     m = m_new
     mu_k = mu_k_new
     omega = 0.0
+    I_factor = new_I_factor
     scene.camera.pos = vector(5, 1, 15)
     total_energy.delete()
     translational_ke.delete()
     rotational_ke.delete()
     lin_momentum.delete()
     ang_momentum.delete()
+    object.visible = False
+    object.delete()
+    marker.delete()
+    if menu_shape.selected == 'Solid Cylinder':
+        object = cylinder(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
+    elif menu_shape.selected == 'Hollow Cylinder':
+        object = ring(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, thickness=R*0.2, texture=textures.wood)
+    elif menu_shape.selected == 'Solid Sphere':
+        object = sphere(pos=vector(0, R, -0.5), radius=R, texture=textures.earth)
+    elif menu_shape.selected == 'Hollow Sphere':
+        object = sphere(pos=vector(0, R, -0.5), radius=R, texture=textures.stucco, shininess=0.1)
     object.radius = R
     object.pos = vector(0, R, 0)
     object.axis = vector(0, 0, 0.5)
+    marker = sphere(pos=object.pos + vector(0, -R, 0.5), radius=0.1, color=color.red, make_trail=True)
     button_play.text = "Play"
     I = I_factor * m * R**2
     trans_ke = 0.5 * m * v**2
@@ -82,14 +106,13 @@ def set_shape(m_item):
     global I_factor, I
     val = m_item.selected
     if val == 'Solid Cylinder':
-        I_factor = 0.5
+        new_I_factor = 0.5
     elif val == 'Hollow Cylinder':
-        I_factor = 1.0
+        new_I_factor = 1.0
     elif val == 'Solid Sphere':
-        I_factor = 0.4
+        new_I_factor = 0.4
     elif val == 'Hollow Sphere':
-        I_factor = 0.67
-
+        new_I_factor = 0.67
 def set_radius(s):
     global R_new
     R_new = s.value
@@ -138,6 +161,9 @@ g_ang_momentum = graph(title="Angular Momentum vs Time", align="left", xtitle="T
 ang_momentum = gcurve(graph=g_ang_momentum, color=color.purple, label="Angular Momentum")
 
 
+
+alert_label = label(pos=vector(0, 5, 0), text="Simulation paused 1s after rolling began.", visible=False, box=True)
+
 while True:
     rate(100)
     
@@ -148,8 +174,20 @@ while True:
             tau_friction = F_friction * R
         else:
             # Rolling phase
+            if t_roll == 9999:
+                t_roll = t
             F_friction = 0
             tau_friction = 0
+        if t >= t_roll and t < t_roll + dt:
+            marker.color=color.blue
+            marker.trail_color=color.blue
+        if t >= t_roll + 1 and t < t_roll + 1 + dt:
+            running=False
+            button_play.text="Play"
+            alert_label.pos = vector(object.pos.x, 5, 0)
+            alert_label.visible=True
+        else:
+            alert_label.visible=False
         a = F_friction / m
         alpha = tau_friction / I
         v += a * dt
