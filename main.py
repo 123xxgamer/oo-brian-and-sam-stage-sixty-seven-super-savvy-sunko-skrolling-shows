@@ -41,6 +41,7 @@ for i in range(total_segments):
     box(pos=vector(i * segment_size - 15 + (segment_size/2), -segment_size/2, 0),
         size=vector(segment_size, segment_size, segment_size),
         texture=textures.rug)
+    
 object = cylinder(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
 marker = sphere(pos=object.pos + vector(0, -R, 0.5), radius=0.1, color=color.red, make_trail = True)
 
@@ -56,24 +57,28 @@ def toggle_play(b):
         b.text = "Play"
 
 def reset_sim(b):
-    global v, omega, running, t, R, m, mu_k, object, total_energy, translational_ke, rotational_ke, lin_momentum, ang_momentum, I, R_new, m_new, mu_k_new, v_init, I_factor, scene
+    global v, omega, running, t, R, m, mu_k, object, total_energy, translational_ke, rotational_ke, lin_momentum, ang_momentum, I, R_new, m_new, mu_k_new, v_init, I_factor, scene, marker, marker_offset, new_I_factor, t_roll, trans_ke, rot_ke, theta
     running = False
+    button_play.text = "Play"
+    alert_label.visible = False
     t = 0.0
+    t_roll = 9999
     v = v_init
     R=R_new
     m = m_new
     mu_k = mu_k_new
     omega = 0.0
+    theta = 0.0
     I_factor = new_I_factor
     scene.camera.pos = vector(5, 1, 15)
-    total_energy.delete()
-    translational_ke.delete()
-    rotational_ke.delete()
-    lin_momentum.delete()
-    ang_momentum.delete()
+    total_energy.data = []
+    translational_ke.data = []
+    rotational_ke.data = []
+    lin_momentum.data = []
+    ang_momentum.data = []
+    
     object.visible = False
     object.delete()
-    marker.delete()
     if menu_shape.selected == 'Solid Cylinder':
         object = cylinder(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
     elif menu_shape.selected == 'Hollow Cylinder':
@@ -82,10 +87,15 @@ def reset_sim(b):
         object = sphere(pos=vector(0, R, -0.5), radius=R, texture=textures.earth)
     elif menu_shape.selected == 'Hollow Sphere':
         object = sphere(pos=vector(0, R, -0.5), radius=R, texture=textures.stucco, shininess=0.1)
+    else:
+        object = cylinder(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
+    object.visible = True
     object.radius = R
     object.pos = vector(0, R, 0)
+    marker.pos = object.pos + vector(0, -R, 0.5)
+    marker.color = color.red
+    marker_offset = marker.pos - object.pos
     object.axis = vector(0, 0, 0.5)
-    marker = sphere(pos=object.pos + vector(0, -R, 0.5), radius=0.1, color=color.red, make_trail=True)
     button_play.text = "Play"
     I = I_factor * m * R**2
     trans_ke = 0.5 * m * v**2
@@ -103,7 +113,7 @@ def set_fric(s):
     text_fric.text = f"Kinetic Friction: {mu_k_new:1.2f}"
 
 def set_shape(m_item):
-    global I_factor, I
+    global I_factor, I, new_I_factor
     val = m_item.selected
     if val == 'Solid Cylinder':
         new_I_factor = 0.5
@@ -159,7 +169,6 @@ lin_momentum = gcurve(graph=g_lin_momentum, color=color.orange, label="Linear Mo
 
 g_ang_momentum = graph(title="Angular Momentum vs Time", align="left", xtitle="Time (s)", ytitle="Angular Momentum (kg*m^2/s)", width=800, height=250)
 ang_momentum = gcurve(graph=g_ang_momentum, color=color.purple, label="Angular Momentum")
-
 
 
 alert_label = label(pos=vector(0, 5, 0), text="Simulation paused 1s after rolling began.", visible=False, box=True)
