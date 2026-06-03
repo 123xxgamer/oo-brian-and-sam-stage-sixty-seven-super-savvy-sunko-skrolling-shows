@@ -57,7 +57,7 @@ def toggle_play(b):
         b.text = "Play"
 
 def reset_sim(b):
-    global v, omega, running, t, R, m, mu_k, object, total_energy, translational_ke, rotational_ke, lin_momentum, ang_momentum, I, R_new, m_new, mu_k_new, v_init, I_factor, scene, marker, marker_offset
+    global v, omega, running, t, R, m, mu_k, object, total_energy, translational_ke, rotational_ke, lin_momentum, ang_momentum, I, R_new, m_new, mu_k_new, v_init, I_factor, scene, marker, marker_offset, new_I_factor, t_roll, trans_ke, rot_ke
     running = False
     button_play.text = "Play"
     alert_label.visible = False
@@ -112,7 +112,7 @@ def set_fric(s):
     text_fric.text = f"Kinetic Friction: {mu_k_new:1.2f}"
 
 def set_shape(m_item):
-    global I_factor, I
+    global I_factor, I, new_I_factor
     val = m_item.selected
     if val == 'Solid Cylinder':
         new_I_factor = 0.5
