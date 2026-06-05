@@ -139,6 +139,7 @@ def set_init_vel(s):
 def delete_trail(b):
     marker.make_trail = False
     marker.clear_trail()
+    marker.make_trail = True
 
 
 #UI elements
