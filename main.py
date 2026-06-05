@@ -13,6 +13,8 @@ I = I_factor * m * R**2 # moment of inertia (kg*m^2)
 
 t_roll = 9999
 
+zoom = 33-8
+
 g = 9.81 # acceleration due to gravity (m/s^2)
 
 v = v_init
@@ -27,7 +29,7 @@ t = 0.0
 dt = 0.01
 
 scene = canvas(title="Skidding to Rolling Transition", width=800, height=400, center=vector(5,1,0), background=color.white, align='left')
-scene.camera.pos = vector(0, 1, 8)
+scene.camera.pos = vector(0, 1, zoom)
 scene.userspin = False
 scene.userzoom = False
 scene.userpan = False
@@ -58,7 +60,7 @@ def toggle_play(b):
         b.text = "Play"
 
 def reset_sim(b):
-    global v, omega, running, t, R, m, mu_k, roll_obj, total_energy, translational_ke, rotational_ke, lin_momentum, ang_momentum, I, R_new, m_new, mu_k_new, v_init, I_factor, scene, marker, marker_offset, new_I_factor, t_roll, trans_ke, rot_ke, theta
+    global v, omega, running, t, R, m, mu_k, roll_obj, total_energy, translational_ke, rotational_ke, lin_momentum, ang_momentum, I, R_new, m_new, mu_k_new, v_init, I_factor, scene, marker, marker_offset, new_I_factor, t_roll, trans_ke, rot_ke, theta, zoom
     running = False
     button_play.text = "Play"
     alert_label.visible = False
@@ -72,7 +74,7 @@ def reset_sim(b):
     theta = 0.0
     marker.make_trail = False
     I_factor = new_I_factor
-    scene.camera.pos = vector(0, 1, 8)
+    scene.camera.pos = vector(0, 1, zoom)
     total_energy.data = []
     translational_ke.data = []
     rotational_ke.data = []
@@ -141,6 +143,12 @@ def delete_trail(b):
     marker.clear_trail()
     marker.make_trail = True
 
+def set_zoom(s):
+    global zoom
+    scene.camera.pos.z = 33 - s.value
+    zoom = 33 - s.value
+    text_zoom.text = f"Zoom"
+    scene.camera.pos = vector(scene.camera.pos.x, scene.camera.pos.y, zoom)
 
 #UI elements
 scene.append_to_caption("\nControls:\n")
@@ -167,6 +175,10 @@ scene.append_to_caption("\n\n")
 
 slider_init_vel = slider(min=0.5, max=20.0, value=v_init, bind=set_init_vel, length=200)
 text_init_vel = wtext(text=f"Initial Velocity: {v_init:1.1f} m/s")
+scene.append_to_caption("\n\n")
+
+slider_zoom = slider(min=3, max=30, value=scene.camera.pos.z, bind=set_zoom, length=200)
+text_zoom = wtext(text=f"Zoom")
 scene.append_to_caption("\n\n")
 
 g_energy = graph(title="Energy vs Time", align="left", xtitle="Time (s)", ytitle="Energy (J)", width=800, height=250)
@@ -226,5 +238,7 @@ while True:
 
         lin_momentum.plot(t, m * v)
         ang_momentum.plot(t, -I * omega)
-        scene.camera.pos = vector(roll_obj.pos.x, 1, 8)
+
+        scene.camera.pos = vector(roll_obj.pos.x, 1, zoom)
+
         t += dt
