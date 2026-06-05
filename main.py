@@ -42,7 +42,7 @@ for i in range(total_segments):
         size=vector(segment_size, segment_size, segment_size),
         texture=textures.rug)
     
-roll_obj = cylinder(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
+roll_obj = cylinder(pos=vector(0, R, 0), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
 marker = sphere(pos=roll_obj.pos + vector(0, -R, 0.5), radius=0.1, color=color.red, make_trail = True)
 
 marker_offset = marker.pos - roll_obj.pos
