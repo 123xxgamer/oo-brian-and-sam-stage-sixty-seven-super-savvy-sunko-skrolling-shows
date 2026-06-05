@@ -80,7 +80,6 @@ def reset_sim(b):
     ang_momentum.data = []
     
     object.visible = False
-    object.delete()
     if menu_shape.selected == 'Solid Cylinder':
         object = cylinder(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
     elif menu_shape.selected == 'Hollow Cylinder':
