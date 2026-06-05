@@ -136,12 +136,18 @@ def set_init_vel(s):
     v_init = s.value
     text_init_vel.text = f"Initial Velocity: {v_init:1.1f} m/s"
 
+def delete_trail(b):
+    marker.make_trail = False
+    marker.clear_trail()
+
 
 #UI elements
 scene.append_to_caption("\nControls:\n")
 button_play = button(text="Play", bind=toggle_play)
 button_reset = button(text="Reset with new parameters", bind=reset_sim)
+button_delete_trail = button(text="Delete Trail(s)", bind=delete_trail)
 scene.append_to_caption("\n\n")
+
 
 menu_shape = menu(choices=['Solid Cylinder', 'Hollow Cylinder', 'Solid Sphere', 'Hollow Sphere'], bind=set_shape)
 scene.append_to_caption("\n\n")
