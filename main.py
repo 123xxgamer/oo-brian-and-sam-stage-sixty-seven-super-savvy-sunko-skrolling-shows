@@ -42,10 +42,10 @@ for i in range(total_segments):
         size=vector(segment_size, segment_size, segment_size),
         texture=textures.rug)
     
-object = cylinder(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
-marker = sphere(pos=object.pos + vector(0, -R, 0.5), radius=0.1, color=color.red, make_trail = True)
+roll_obj = cylinder(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
+marker = sphere(pos=roll_obj.pos + vector(0, -R, 0.5), radius=0.1, color=color.red, make_trail = True)
 
-marker_offset = marker.pos - object.pos
+marker_offset = marker.pos - roll_obj.pos
 
 #UI callback funcs
 def toggle_play(b):
@@ -58,7 +58,7 @@ def toggle_play(b):
         b.text = "Play"
 
 def reset_sim(b):
-    global v, omega, running, t, R, m, mu_k, object, total_energy, translational_ke, rotational_ke, lin_momentum, ang_momentum, I, R_new, m_new, mu_k_new, v_init, I_factor, scene, marker, marker_offset, new_I_factor, t_roll, trans_ke, rot_ke, theta
+    global v, omega, running, t, R, m, mu_k, roll_obj, total_energy, translational_ke, rotational_ke, lin_momentum, ang_momentum, I, R_new, m_new, mu_k_new, v_init, I_factor, scene, marker, marker_offset, new_I_factor, t_roll, trans_ke, rot_ke, theta
     running = False
     button_play.text = "Play"
     alert_label.visible = False
@@ -79,26 +79,26 @@ def reset_sim(b):
     lin_momentum.data = []
     ang_momentum.data = []
     
-    object.visible = False
+    roll_obj.visible = False
     if menu_shape.selected == 'Solid Cylinder':
-        object = cylinder(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
+        roll_obj = cylinder(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
     elif menu_shape.selected == 'Hollow Cylinder':
-        object = ring(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, thickness=R*0.2, texture=textures.wood)
+        roll_obj = ring(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, thickness=R*0.2, texture=textures.wood)
     elif menu_shape.selected == 'Solid Sphere':
-        object = sphere(pos=vector(0, R, -0.5), radius=R, texture=textures.earth)
+        roll_obj = sphere(pos=vector(0, R, -0.5), radius=R, texture=textures.earth)
     elif menu_shape.selected == 'Hollow Sphere':
-        object = sphere(pos=vector(0, R, -0.5), radius=R, texture=textures.stucco, shininess=0.1)
+        roll_obj = sphere(pos=vector(0, R, -0.5), radius=R, texture=textures.stucco, shininess=0.1)
     else:
-        object = cylinder(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
-    object.visible = True
-    object.radius = R
-    object.pos = vector(0, R, 0)
-    marker.pos = object.pos + vector(0, -R, 0.5)
+        roll_obj = cylinder(pos=vector(0, R, -0.5), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
+    roll_obj.visible = True
+    roll_obj.radius = R
+    roll_obj.pos = vector(0, R, 0)
+    marker.pos = roll_obj.pos + vector(0, -R, 0.5)
     #marker.make_trail = True
     marker.color = color.red
     marker.trail_color = color.red
-    marker_offset = marker.pos - object.pos
-    object.axis = vector(0, 0, 0.5)
+    marker_offset = marker.pos - roll_obj.pos
+    roll_obj.axis = vector(0, 0, 0.5)
     button_play.text = "Play"
     I = I_factor * m * R**2
     trans_ke = 0.5 * m * v**2
@@ -196,7 +196,7 @@ while True:
         if t >= t_roll + 1 and t < t_roll + 1 + dt:
             running=False
             button_play.text="Play"
-            alert_label.pos = vector(object.pos.x, 5, 0)
+            alert_label.pos = vector(roll_obj.pos.x, 5, 0)
             alert_label.visible=True
         else:
             alert_label.visible=False
@@ -206,9 +206,9 @@ while True:
         omega += alpha * dt
         d_theta = omega * dt
         theta += d_theta
-        object.rotate(angle=d_theta, axis=vector(0, 0, 1), origin=object.pos)
-        object.pos.x += v * dt
-        marker.pos = object.pos + marker_offset.rotate(angle=theta, axis=object.axis)
+        roll_obj.rotate(angle=d_theta, axis=vector(0, 0, 1), origin=roll_obj.pos)
+        roll_obj.pos.x += v * dt
+        marker.pos = roll_obj.pos + marker_offset.rotate(angle=theta, axis=roll_obj.axis)
 
         trans_ke = 0.5 * m * v**2
         rot_ke = 0.5 * I * omega**2
@@ -219,5 +219,5 @@ while True:
 
         lin_momentum.plot(t, m * v)
         ang_momentum.plot(t, -I * omega)
-        scene.camera.pos = vector(object.pos.x, 1, 8)
+        scene.camera.pos = vector(roll_obj.pos.x, 1, 8)
         t += dt
