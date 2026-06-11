@@ -34,7 +34,7 @@ scene.userspin = False
 scene.userzoom = False
 scene.userpan = False
 
-length = 105
+length = 999
 segment_size = 3 # Matches the texture's aspect ratio
 total_segments = int(length / segment_size)
 
@@ -53,7 +53,7 @@ marker_offset = marker.pos - roll_obj.pos
 def toggle_play(b):
     global running
     running = not running
-    if running:
+    if running and roll_obj.pos.x < length - 20:
         marker.make_trail = True
         b.text = "Pause"
         reset_label.visible = False
@@ -107,6 +107,7 @@ def reset_sim(b):
     trans_ke = 0.5 * m * v**2
     rot_ke = 0.5 * I * omega**2
     reset_label.pos = vector(roll_obj.pos.x, 5, 0)
+    end_of_sim_label.visible = False
     reset_label.visible = True
     
 
@@ -176,7 +177,7 @@ slider_radius = slider(min=0.1, max=5.0, value=R, bind=set_radius, length=200)
 text_radius = wtext(text=f"Radius: {R:1.1f} m")
 scene.append_to_caption("\n\n")
 
-slider_init_vel = slider(min=0.5, max=20.0, value=v_init, bind=set_init_vel, length=200)
+slider_init_vel = slider(min=0.5, max=15.0, value=v_init, bind=set_init_vel, length=200)
 text_init_vel = wtext(text=f"Initial Velocity: {v_init:1.1f} m/s")
 scene.append_to_caption("\n\n")
 
@@ -198,6 +199,7 @@ ang_momentum = gcurve(graph=g_ang_momentum, color=color.purple, label="Angular M
 
 alert_label = label(pos=vector(0, 5, 0), text="Simulation paused 1s after rolling began.", visible=False, box=True)
 reset_label = label(pos=vector(0, 5, 0), text="Parameters reset. Press Play to start.", visible=False, box=True)
+end_of_sim_label = label(pos=vector(0, 5, 0), text="Object reached the end of the track. Simulation paused. Press Reset to restart.", visible=False, box=True)
 
 while True:
     rate(100)
@@ -223,9 +225,11 @@ while True:
             alert_label.visible=True
         else:
             alert_label.visible=False
-        if roll_obj.pos.x > length - 10:
+        if roll_obj.pos.x > length - 20:
             running = False
             button_play.text = "Play"
+            end_of_sim_label.pos = vector(roll_obj.pos.x, 5, 0)
+            end_of_sim_label.visible = True
         a = F_friction / m
         alpha = tau_friction / I
         v += a * dt
