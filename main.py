@@ -196,6 +196,11 @@ lin_momentum = gcurve(graph=g_lin_momentum, color=color.orange, label="Linear Mo
 g_ang_momentum = graph(title="Angular Momentum vs Time", align="left", xtitle="Time (s)", ytitle="Angular Momentum (kg*m^2/s)", width=800, height=250)
 ang_momentum = gcurve(graph=g_ang_momentum, color=color.purple, label="Angular Momentum")
 
+g_vel = graph(title="Velocity vs Time", align="left", xtitle="Time (s)", ytitle="Velocity (m/s)", width=800, height=250)
+vel_curve = gcurve(graph=g_vel, color=color.black, label="COM Translational Velocity")
+point_on_obj = gcurve(graph=g_vel, color=color.cyan, label="Point on Object's Outside Surface Horizontal Velocity")
+point_speed = gcurve(graph=g_vel, color=color.magenta, label="Point on Object's Outside Surface Speed Relative to COM")
+
 
 alert_label = label(pos=vector(0, 5, 0), text="Simulation paused 1s after rolling began.", visible=False, box=True)
 reset_label = label(pos=vector(0, 5, 0), text="Parameters reset. Press Play to start.", visible=False, box=True)
@@ -249,6 +254,10 @@ while True:
 
         lin_momentum.plot(t, m * v)
         ang_momentum.plot(t, -I * omega)
+
+        vel_curve.plot(t, v)
+        point_on_obj.plot(t, v + omega * R * cos(theta))
+        point_speed.plot(t, -omega * R)
 
         scene.camera.pos = vector(roll_obj.pos.x, 1, zoom)
 
