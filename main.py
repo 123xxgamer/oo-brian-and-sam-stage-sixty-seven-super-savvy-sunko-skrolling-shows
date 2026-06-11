@@ -56,6 +56,7 @@ def toggle_play(b):
     if running:
         marker.make_trail = True
         b.text = "Pause"
+        reset_label.visible = False
     else:
         b.text = "Play"
 
@@ -105,6 +106,8 @@ def reset_sim(b):
     I = I_factor * m * R**2
     trans_ke = 0.5 * m * v**2
     rot_ke = 0.5 * I * omega**2
+    reset_label.pos = vector(roll_obj.pos.x, 5, 0)
+    reset_label.visible = True
     
 
 def set_mass(s):
@@ -194,6 +197,7 @@ ang_momentum = gcurve(graph=g_ang_momentum, color=color.purple, label="Angular M
 
 
 alert_label = label(pos=vector(0, 5, 0), text="Simulation paused 1s after rolling began.", visible=False, box=True)
+reset_label = label(pos=vector(0, 5, 0), text="Parameters reset. Press Play to start.", visible=False, box=True)
 
 while True:
     rate(100)
@@ -219,6 +223,9 @@ while True:
             alert_label.visible=True
         else:
             alert_label.visible=False
+        if roll_obj.pos.x > length - 10:
+            running = False
+            button_play.text = "Play"
         a = F_friction / m
         alpha = tau_friction / I
         v += a * dt
