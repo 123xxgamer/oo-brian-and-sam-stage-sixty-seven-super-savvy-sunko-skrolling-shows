@@ -33,3 +33,30 @@ Web VPython 3.2
 
 #Graphs include Translational/Rotational/Total Energy vs. Time, Linear Momentum vs. Time, Angular Momentum vs. Time,
 #COM Velocity/Marker Horizontal Veocity/Marker Speed, Relative to COM vs. Time.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+scene.background = color.black
+head = sphere(pos=vector(0,0,0), radius=2, color=color.gray(0.6))
+left_socket = sphere(pos=vector(-0.6, 0.5, 1.7), radius=0.3, color=color.black)
+right_socket = sphere(pos=vector(0.6, 0.5, 1.7), radius=0.3, color=color.black)
+left_pupil = sphere(pos=vector(-0.6, 0.5, 1.944), radius=0.06, color=color.red, emissive=True)
+right_pupil = sphere(pos=vector(0.6, 0.5, 1.944), radius=0.06, color=color.red, emissive=True)
+smile = ring(pos=vector(0, -0.4, 1.6), axis=vector(0, 1, 0.5), radius=0.7, thickness=0.08, color=vector(0.5, 0, 0))
