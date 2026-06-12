@@ -46,6 +46,8 @@ for i in range(total_segments):
     
 roll_obj = cylinder(pos=vector(0, R, 0), axis=vector(0, 0, 0.5), radius=R, texture=textures.wood)
 marker = sphere(pos=roll_obj.pos + vector(0, -R, 0.5), radius=0.1, color=color.red, make_trail = True)
+com_marker = sphere(pos=roll_obj.pos, radius=0.1, color=color.green, make_trail=True)
+com_marker_offset = vector(0, 0, 0.5)
 
 marker_offset = marker.pos - roll_obj.pos
 
@@ -55,6 +57,7 @@ def toggle_play(b):
     running = not running
     if running and roll_obj.pos.x < length - 20:
         marker.make_trail = True
+        com_marker.make_trail = True
         b.text = "Pause"
         reset_label.visible = False
     else:
@@ -74,6 +77,7 @@ def reset_sim(b):
     omega = 0.0
     theta = 0.0
     marker.make_trail = False
+    com_marker.make_trail = False
     I_factor = new_I_factor
     scene.camera.pos = vector(0, 1, zoom)
     total_energy.data = []
@@ -97,9 +101,11 @@ def reset_sim(b):
     roll_obj.radius = R
     roll_obj.pos = vector(0, R, 0)
     marker.pos = roll_obj.pos + vector(0, -R, 0.5)
-    #marker.make_trail = True
+    com_marker.pos = roll_obj.pos
     marker.color = color.red
+    com_marker.color = color.green
     marker.trail_color = color.red
+    com_marker.trail_color = color.green
     marker_offset = marker.pos - roll_obj.pos
     roll_obj.axis = vector(0, 0, 0.5)
     button_play.text = "Play"
@@ -146,6 +152,9 @@ def delete_trail(b):
     marker.make_trail = False
     marker.clear_trail()
     marker.make_trail = True
+    com_marker.make_trail = False
+    com_marker.clear_trail()
+    com_marker.make_trail = True
 
 def set_zoom(s):
     global zoom
@@ -252,6 +261,8 @@ while True:
         if t >= t_roll and t < t_roll + dt:
             marker.color=color.blue
             marker.trail_color=color.blue
+            com_marker.color=color.purple
+            com_marker.trail_color=color.purple
         if t >= t_roll + 1 and t < t_roll + 1 + dt:
             running=False
             button_play.text="Play"
@@ -273,6 +284,7 @@ while True:
         roll_obj.rotate(angle=d_theta, axis=vector(0, 0, 1), origin=roll_obj.pos)
         roll_obj.pos.x += v * dt
         marker.pos = roll_obj.pos + marker_offset.rotate(angle=theta, axis=roll_obj.axis)
+        com_marker.pos = roll_obj.pos + com_marker_offset
 
         trans_ke = 0.5 * m * v**2
         rot_ke = 0.5 * I * omega**2
