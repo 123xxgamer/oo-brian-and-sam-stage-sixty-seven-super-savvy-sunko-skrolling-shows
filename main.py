@@ -206,6 +206,35 @@ alert_label = label(pos=vector(0, 5, 0), text="Simulation paused 1s after rollin
 reset_label = label(pos=vector(0, 5, 0), text="Parameters reset. Press Play to start.", visible=False, box=True)
 end_of_sim_label = label(pos=vector(0, 5, 0), text="Object reached the end of the track. Simulation paused. Press Reset to restart.", visible=False, box=True)
 
+if v > -omega * R:
+    # Skidding phase
+    F_friction = -mu_k * m * g
+    tau_friction = F_friction * R
+else:
+    # Rolling phase
+    if t_roll == 9999:
+        t_roll = t
+    F_friction = 0
+    tau_friction = 0
+
+a = F_friction / m
+alpha = tau_friction / I
+d_theta = omega * dt
+
+trans_ke = 0.5 * m * v**2
+rot_ke = 0.5 * I * omega**2
+
+total_energy.plot(t, trans_ke + rot_ke)
+translational_ke.plot(t, trans_ke)
+rotational_ke.plot(t, rot_ke)
+
+lin_momentum.plot(t, m * v)
+ang_momentum.plot(t, -I * omega)
+
+vel_curve.plot(t, v)
+point_on_obj.plot(t, v + omega * R * cos(theta))
+point_speed.plot(t, -omega * R)
+
 while True:
     rate(100)
     
